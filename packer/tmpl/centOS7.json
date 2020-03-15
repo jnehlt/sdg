@@ -1,0 +1,83 @@
+{
+  "builders": [
+    {
+      "type": "virtualbox-iso",
+      "guest_os_type": "RedHad_64",
+      "iso_url": "http://linux.darkpenguin.net/distros/CentOS-AltArch/7.7.1908/isos/aarch64/CentOS-7-aarch64-NetInstall-1908.iso",
+      "iso_checksum": "9374c22959c490782d641db04220517347d29337b71119e50b39b74e7269c69b",
+      "iso_checksum_type": "sha256",
+      "output_directory": "output-CentOS-7.7.1908_aarch64-{{build_type}}",
+      "vm_name": "sdg-centos7.7-x64",
+      "disk_size": "{{user `disk_size`}}",
+      "hard_drive_discard": "{{user `hard_drive_discard`}}",
+      "hard_drive_nonrotational": "{{user `hard_drive_nonrotational`}}",
+      "hard_drive_interface": "{{user `hard_drive_interface`}}",
+      "headless": "{{user `headless`}}",
+      "http_directory": "http",
+      "boot_wait": "5s",
+      "boot_command": [
+        "<esc>",
+        "<wait>",
+        "<linux inst.ks=http://{{.HTTPIP}}:{{.HTTPPort}}/ks.cfg biosdevname=0 net.ifnames=0",
+        "<enter>"
+      ],
+      "ssh_timeout": "{{user `ssh_timeout`}}",
+      "ssh_username": "{{user `ssh_username`}}",
+      "ssh_password": "{{user `ssh_password`}}",
+      "ssh_pty": true,
+      "shutdown_command": "sudo systemctl poweroff",
+      "vboxmanage": [
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--memory",
+          "{{user `memory`}}"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--cpus",
+          "{{user `cpus`}}"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "nic1",
+          "nat",
+          "--nictype1",
+          "virtio"
+        ]
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "scripts": [
+        "pscr/sshd.sh",
+        "pscr/vbx.sh",
+        "pscr/decontaminate.sh"
+      ]
+    }
+  ],
+  "post-processors":[
+    {
+      "type": "vagrant",
+      "compression_level": "{{user `compression_level`}}",
+      "output": "CentOS-7.7.1908_aarch64-{{.Provider}}.box"
+    }
+  ],
+  "variables": {
+    "compression_level": "6",
+    "cpus": "2",
+    "disk_size": "10000",
+    "hard_drive_discard": "true",
+    "hard_drive_interface": "sata",
+    "hard_drive_nonrotational": "true",
+    "headless": "true",
+    "memory": "1024",
+    "ssh_timeout": "10m",
+    "ssh_username": "sdg",
+    "ssh_password": "sdg1234"
+  }
+}
