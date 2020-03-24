@@ -10,6 +10,7 @@ Vagrant.configure("2") do |config|
     config.vm.define "vpss-#{i}" do |vps|
       vps.vm.box = "sdg/centOS"
       vps.ssh.username = "sdg"
+      vps.ssh.password = "sdg666"
       vps.vm.network "private_network", ip: "192.168.0.#{i + 10}"
       vps.vm.provision "file", source: "keys/sdg.pub", destination: "/home/sdg/sdg.pub"
       vps.vm.provision "shell",
