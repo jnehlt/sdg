@@ -2,9 +2,9 @@
   "builders": [
     {
       "type": "virtualbox-iso",
-      "guest_os_type": "RedHad_64",
-      "iso_url": "http://linux.darkpenguin.net/distros/CentOS-AltArch/7.7.1908/isos/aarch64/CentOS-7-aarch64-NetInstall-1908.iso",
-      "iso_checksum": "9374c22959c490782d641db04220517347d29337b71119e50b39b74e7269c69b",
+        "guest_os_type": "RedHad_64",
+      "iso_url": "http://ftp.man.poznan.pl/pub/centos/7.7.1908/isos/x86_64/CentOS-7-x86_64-NetInstall-1908.iso",
+      "iso_checksum": "6ffa7ad44e8716e4cd6a5c3a85ba5675a935fc0448c260f43b12311356ba85ad",
       "iso_checksum_type": "sha256",
       "output_directory": "output-CentOS-7.7.1908_aarch64-{{build_type}}",
       "vm_name": "sdg-centos7.7-x64",
@@ -16,16 +16,15 @@
       "http_directory": "http",
       "boot_wait": "5s",
       "boot_command": [
-        "<esc>",
-        "<wait>",
-        "<linux inst.ks=http://{{.HTTPIP}}:{{.HTTPPort}}/ks.cfg biosdevname=0 net.ifnames=0",
-        "<enter>"
+        "<tab> text ks=http://{{.HTTPIP}}:{{.HTTPPort}}/kickstart.cfg",
+        "<enter>",
+        "<wait>"
       ],
       "ssh_timeout": "{{user `ssh_timeout`}}",
       "ssh_username": "{{user `ssh_username`}}",
       "ssh_password": "{{user `ssh_password`}}",
       "ssh_pty": true,
-      "shutdown_command": "sudo systemctl poweroff",
+      "shutdown_command": "echo {{user `ssh_username`}} | sudo shutdown -P now",
       "vboxmanage": [
         [
           "modifyvm",
@@ -42,7 +41,7 @@
         [
           "modifyvm",
           "{{.Name}}",
-          "nic1",
+          "--nic1",
           "nat",
           "--nictype1",
           "virtio"
@@ -54,9 +53,7 @@
     {
       "type": "shell",
       "scripts": [
-        "pscr/sshd.sh",
-        "pscr/vbx.sh",
-        "pscr/decontaminate.sh"
+        "pscr/vbx.sh"
       ]
     }
   ],
@@ -70,14 +67,14 @@
   "variables": {
     "compression_level": "6",
     "cpus": "2",
-    "disk_size": "10000",
-    "hard_drive_discard": "true",
+    "disk_size": "20000",
+    "hard_drive_discard": "false",
     "hard_drive_interface": "sata",
     "hard_drive_nonrotational": "true",
     "headless": "true",
     "memory": "1024",
-    "ssh_timeout": "10m",
+    "ssh_timeout": "1h",
     "ssh_username": "sdg",
-    "ssh_password": "sdg1234"
+    "ssh_password": "sdg666"
   }
 }

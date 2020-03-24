@@ -1,0 +1,120 @@
+---
+- hosts: all
+  become: true
+  tasks:
+  - name: apt over HTTPS
+    apt:
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg-agent
+      - software-properties-common
+
+  - name: Signing key for Docker
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: Repository for stable version
+    apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+      state: present
+
+  - name: Add an apt signing key for Kubernetes
+    apt_key:
+      url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+      state: present
+
+  - name: Adding apt repository for Kubernetes
+    apt_repository:
+      repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+      state: present
+      filename: kubernetes.list
+
+  - name: Install docker and kubernetes packages
+    apt:
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+      - docker-ce=18.06.1~ce~3-0~ubuntu
+      - kubelet=1.15.7-00
+      - kubeadm=1.15.7-00
+      - kubectl=1.15.7-00
+
+  - name: Prevent cluster-critical packages to be upgraded
+    dpkg_selections:
+      name: "{{ item }}"
+      selection: hold
+    with_items:
+      - docker-ce
+      - kubelet
+      - kubeadm
+      - kubectl
+
+  - name: Enable bridge-nf-call-iptables
+    sysctl:
+      name: "{{ item }}"
+      state: present
+      value: "1"
+      sysctl_file: /etc/sysctl.d/bridge-nf-call.conf
+      reload: yes
+    with_items:
+      - net.bridge.bridge-nf-call-ip6tables
+      - net.bridge.bridge-nf-call-iptables
+
+  - name: Add vagrant user to docker group
+    user:
+      name: vagrant
+      group: docker
+
+  - name: Remove swapfile from /etc/fstab
+    mount:
+      name: "{{ item }}"
+      fstype: swap
+      state: absent
+    with_items:
+      - swap
+      - none
+
+  - name: Disable swap
+    command: swapoff -a
+    when: ansible_swaptotal_mb > 0
+
+  - name: Deploy Docker daemon.json.
+    copy:
+      src: ./daemon.json
+      dest: /etc/docker/daemon.json
+
+  - name: Restart docker
+    service:
+      name: docker
+      daemon_reload: yes
+      state: restarted
+
+  - name: Create kubelet config file
+    copy:
+      content: "KUBELET_EXTRA_ARGS=--node-ip={{ node_ip }} --cgroup-driver=systemd"
+      dest: "/etc/default/kubelet"
+
+  - name: Restart kubelet
+    service:
+      name: kubelet
+      daemon_reload: yes
+      state: restarted
+
+  - name: Initialize the Kubernetes cluster using kubeadm
+    command: kubeadm init --apiserver-advertise-address="192.168.50.10" --apiserver-cert-extra-sans="192.168.50.10"  --node-name master --pod-network-cidr=10.244.0.0/16
+
+  - name: Setup kubeconfig for vagrant user
+    command: "{{ item }}"
+    with_items:
+     - mkdir -p /home/vagrant/.kube
+     - cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
+     - chown vagrant:vagrant /home/vagrant/.kube/config

@@ -1,0 +1,8 @@
+---
+- hosts: all
+  become: false
+  tasks:
+  - name: Install flannel pod network
+    command: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+    delay: 10
+    retries: 3

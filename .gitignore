@@ -1,0 +1,11 @@
+**/.idea/
+**/packer_cache/
+**/output-*
+**/*.box
+**/.terraform/
+**/*.tfstate*
+**/.vagrant/
+
+**/sdg.pub
+**/sdg
+**/keys/
