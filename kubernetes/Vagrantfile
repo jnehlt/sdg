@@ -26,7 +26,6 @@ Vagrant.configure("2") do |config|
         master.vm.provision "ansible" do |cni|
             cni.playbook = "setup/master-cni-setup.yaml"
         end
-
     end
 
     (1..N).each do |i|
@@ -40,7 +39,6 @@ Vagrant.configure("2") do |config|
                 ansible.extra_vars = {
                     node_ip: "192.168.50.#{i + 10}",
                 }
-                ansible.verbose = "true"
             end
         end
     end

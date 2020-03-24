@@ -25,6 +25,12 @@ resource "null_resource" "exec_packer" {
   }
 }
 
+resource "null_resource" "register_box" {
+  provisioner "local-exec" {
+    command = "cd ../packer && vagrant box add sdg/centOS CentOS-7.7.1908_aarch64-virtualbox.box"
+  }
+}
+
 resource "null_resource" "exec_vagrant" {
   depends_on = [
     null_resource.exec_packer

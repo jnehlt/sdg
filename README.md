@@ -16,6 +16,9 @@ Quick description:
 Security:
   * Simply hardened (see: [here](https://github.com/jnehlt/sdg/tree/master/packer/pscr))
 
+* Provisioning time
+  * ~25mins
+
 ## K8S stack
 To run this stack just simply...:
 ```bash
@@ -30,6 +33,8 @@ Quick description:
 
 * Security:
   * None (RAW K8S cluster)
-  
+
+* Provisioning time
+  * ~10mins  
 
 Hope you're doing well

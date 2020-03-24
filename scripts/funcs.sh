@@ -21,7 +21,7 @@ function is_su (){
 }
 
 function deps_check (){
-    deps=("ansible" "packer" "terraform" "vagrand" "virtualbox")
+    deps=("ansible" "packer" "terraform" "vagrant" "virtualbox")
     for dep in ${deps[@]}; do
         command -v "${dep}" 1>& /dev/null
         if [[ $? -ne 0 ]]; then

@@ -9,7 +9,9 @@ source ./scripts/funcs.sh
 
     vagrant up
     check_exitstatus
-    vagrant ssh master -c "kubectl get nodes -o wide"
+
+    c_echo "green" "Wait for all nodes to be in Ready state"
+    vagrant ssh master -c "kubectl wait --for=condition=Ready nodes --all 1>& /dev/null; kubectl get nodes -o wide"
     check_exitstatus
 
     c_echo "yellow" "Sleeping for 5sec before cleanup..."
